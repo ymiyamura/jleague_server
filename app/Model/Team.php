@@ -1,13 +1,12 @@
 <?php
 App::uses('AppModel', 'Model');
 /**
- * League Model
+ * Team Model
  *
- * @property Game $Game
+ * @property League $League
  * @property Ranking $Ranking
- * @property Team $Team
  */
-class League extends AppModel {
+class Team extends AppModel {
 
 /**
  * Validation rules
@@ -25,9 +24,34 @@ class League extends AppModel {
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
+		'league_id' => array(
+			'numeric' => array(
+				'rule' => array('numeric'),
+				//'message' => 'Your custom message here',
+				//'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
+		),
 	);
 
 	// The Associations below have been created with all possible keys, those that are not needed can be removed
+
+/**
+ * belongsTo associations
+ *
+ * @var array
+ */
+	public $belongsTo = array(
+		'League' => array(
+			'className' => 'League',
+			'foreignKey' => 'league_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		)
+	);
 
 /**
  * hasMany associations
@@ -35,35 +59,9 @@ class League extends AppModel {
  * @var array
  */
 	public $hasMany = array(
-		'Game' => array(
-			'className' => 'Game',
-			'foreignKey' => 'league_id',
-			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
-		),
 		'Ranking' => array(
 			'className' => 'Ranking',
-			'foreignKey' => 'league_id',
-			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
-		),
-		'Team' => array(
-			'className' => 'Team',
-			'foreignKey' => 'league_id',
+			'foreignKey' => 'team_id',
 			'dependent' => false,
 			'conditions' => '',
 			'fields' => '',
