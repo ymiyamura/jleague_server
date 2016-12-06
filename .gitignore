@@ -9,6 +9,7 @@
 /dist
 /tags
 *.mo
+/app/Config/core.php
 
 # IDE and editor specific files #
 #################################
