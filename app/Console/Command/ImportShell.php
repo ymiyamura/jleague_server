@@ -1,6 +1,7 @@
 <?php 
 App::import('Vendor', 'phpQuery-onefile');
 App::uses('TeamShell', 'Console/Command');
+App::uses('CakeTime', 'Utility');
 /**
 * 
 */
@@ -9,6 +10,7 @@ class ImportShell extends AppShell
 	const J1 = 1;
 	const J2 = 2;
 	const J3 = 3;
+	public $uses = array('Team', 'Game');
 	
 	public function teams()
 	{
@@ -19,20 +21,76 @@ class ImportShell extends AppShell
 		}
 	}
 
-	public function schedules()
-		{
-			// 2016年の全日程
-			$url = 'https://data.j-league.or.jp/SFMS01/search?competition_years=2016&competition_frame_ids=1&competition_frame_ids=2&competition_frame_ids=3&tv_relay_station_name=';
-			
-			// #search-list > div:nth-child(3) > table > tbody > tr:nth-child(1)
-			$html = file_get_contents($url);
-			$doc = phpQuery::newDocument($html);
-			$path = '#search-list > div:nth-child(3) > table > tbody > tr';
-			foreach($doc[$path] as $row) {
-				$this->out(pq($row)->find('td:eq(1)')->text());
-			}
+	public function games()
+	{
+		// 2016年の全日程
+		$url = 'https://data.j-league.or.jp/SFMS01/search?competition_years=2016&competition_frame_ids=1&competition_frame_ids=2&competition_frame_ids=3&tv_relay_station_name=';
 
+		// #search-list > div:nth-child(3) > table > tbody > tr:nth-child(1)
+		$html = file_get_contents($url);
+		$doc = phpQuery::newDocument($html);
+		$path = '#search-list > div:nth-child(3) > table > tbody > tr';
+		$i = 0;
+		foreach($doc[$path] as $row) {
+			$params = array();
+			// 年
+			$params['year'] = pq($row)->find('td:eq(0)')->text();
+			// リーグ
+			$params['league_id'] = $this->makeLeagueId(pq($row)->find('td:eq(1)')->text());
+			// 節
+			$params['section'] = $this->makeSection(pq($row)->find('td:eq(2)')->text());
+			// 日程
+			$params['date'] = $this->makeDate(pq($row)->find('td:eq(3)')->text(), $params['year']);
+			// スタジアム
+			$params['stadium'] = trim(pq($row)->find('td:eq(8)')->text());
+			// 開始時間
+			$params['start'] = trim(pq($row)->find('td:eq(4)')->text());
+			// ホームチーム
+			$params['home_team_id'] = $this->makeTeamId(pq($row)->find('td:eq(5)>a')->text());
+			// アウェイチーム
+			$params['away_team_id'] = $this->makeTeamId(pq($row)->find('td:eq(7)>a')->text());
+			// $this->out($params);
+			$this->Game->create();
+			$this->Game->save($params);
+			$i++;
 		}
+		$this->out($i . '件の登録が完了しました。');
+	}
+
+	private function makeLeagueId($input)
+	{
+		$str = mb_convert_kana(mb_substr($input, 0, 2), "a");
+		if ($str == "J1") {
+			return self::J1;
+		} elseif ($str == "J2") {
+			return self::J2;
+		} elseif ($str == "J3") {
+			return self::J3;
+		}
+		return 0;
+	}
+
+	private function makeSection($input)
+	{
+		if (preg_match('/^第(.+)節/', $input, $matches)) {
+			return mb_convert_kana($matches[1], "n");
+		}
+		return 0;
+	}
+
+	private function makeDate($input, $year)
+	{
+		if (preg_match('/^([0-9]{2})\/([0-9]{2})/', $input, $matches)) {
+			return date('Y-m-d H:i:s', mktime(0,0,0,$matches[1],$matches[2],$year));
+		}
+		return null;
+	}
+
+	private function makeTeamId($input)
+	{
+		$namemap = $this->Team->namemap();
+		return $namemap[$input];
+	}
 
 	private function getUrlForTeams($league)
 	{
