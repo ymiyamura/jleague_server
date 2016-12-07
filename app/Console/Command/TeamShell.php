@@ -19,6 +19,7 @@ class TeamShell extends AppShell
 		$params = array();
 		$params['league_id'] = ($league_id === null) ? $this->args[0] : $league_id;
 		$params['name'] = ($name === null) ? $this->args[1] : $name;
+		$params['short_name'] = $this->Team->shortNames[$params['name']];
 		$this->Team->create();
 		$this->Team->save($params);
 		$this->out('登録しました。: ' . $params['league_id'] . ' ' . $params['name']);
