@@ -17,12 +17,13 @@ class AppSchema extends CakeSchema {
 		'start' => array('type' => 'time', 'null' => true, 'default' => null),
 		'home_team_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false),
 		'away_team_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false),
-		'home_team_goals' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false),
-		'away_team_goals' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false),
-		'result' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false),
+		'home_team_goals' => array('type' => 'integer', 'null' => false, 'default' => '0', 'unsigned' => false),
+		'away_team_goals' => array('type' => 'integer', 'null' => false, 'default' => '0', 'unsigned' => false),
+		'result' => array('type' => 'integer', 'null' => false, 'default' => '0', 'unsigned' => false),
 		'league_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false),
 		'created' => array('type' => 'datetime', 'null' => true, 'default' => null),
 		'modified' => array('type' => 'datetime', 'null' => true, 'default' => null),
+		'stage' => array('type' => 'integer', 'null' => true, 'default' => '1', 'unsigned' => false),
 		'indexes' => array(
 			'PRIMARY' => array('column' => 'id', 'unique' => 1)
 		),
@@ -79,6 +80,8 @@ class AppSchema extends CakeSchema {
 		'name' => array('type' => 'string', 'null' => false, 'default' => null, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
 		'logo_image' => array('type' => 'string', 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
 		'color' => array('type' => 'string', 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
+		'short_name' => array('type' => 'string', 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
+		'league_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false),
 		'indexes' => array(
 			'PRIMARY' => array('column' => 'id', 'unique' => 1)
 		),
