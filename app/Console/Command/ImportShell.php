@@ -36,38 +36,57 @@ class ImportShell extends AppShell
 			// 年
 			$params['year'] = pq($row)->find('td:eq(0)')->text();
 			// リーグ
-			$params['league_id'] = $this->makeLeagueId(pq($row)->find('td:eq(1)')->text());
+			list($params['league_id'], $params['stage']) = $this->makeLeagueId(pq($row)->find('td:eq(1)')->text());
 			// 節
 			$params['section'] = $this->makeSection(pq($row)->find('td:eq(2)')->text());
+			// ホームチーム
+			$params['home_team_id'] = $this->makeTeamId(pq($row)->find('td:eq(5)>a')->text());
+			// アウェイチーム
+			$params['away_team_id'] = $this->makeTeamId(pq($row)->find('td:eq(7)>a')->text());
+
+			$game = $this->Game->find('first', array('conditions' => $params));
+			if (empty($game)) {
+				$this->Game->create();
+				$this->out("create.");
+			} else {
+				$params['id'] = $game['Game']['id'];
+				$this->out("game_id is " . $params['id']);
+			}
 			// 日程
 			$params['date'] = $this->makeDate(pq($row)->find('td:eq(3)')->text(), $params['year']);
 			// スタジアム
 			$params['stadium'] = trim(pq($row)->find('td:eq(8)')->text());
 			// 開始時間
 			$params['start'] = trim(pq($row)->find('td:eq(4)')->text());
-			// ホームチーム
-			$params['home_team_id'] = $this->makeTeamId(pq($row)->find('td:eq(5)>a')->text());
-			// アウェイチーム
-			$params['away_team_id'] = $this->makeTeamId(pq($row)->find('td:eq(7)>a')->text());
+			// H得点、A得点、結果
+			list($params['home_team_goals'], $params['away_team_goals'], $params['result']) = $this->makeResult(pq($row)->find('td:eq(6)>a')->text());
 			// $this->out($params);
-			$this->Game->create();
+			// $this->Game->create();
 			$this->Game->save($params);
 			$i++;
+			// if ($i == 10) {
+			// 	return;
+			// }
 		}
 		$this->out($i . '件の登録が完了しました。');
 	}
 
 	private function makeLeagueId($input)
 	{
+		$league_id = 0;
+		$stage = 1;
 		$str = mb_convert_kana(mb_substr($input, 0, 2), "a");
 		if ($str == "J1") {
-			return self::J1;
+			$league_id = self::J1;
+			if (preg_match('/２ｎｄ/', $input)) {
+				$stage = 2;
+			}
 		} elseif ($str == "J2") {
-			return self::J2;
+			$league_id = self::J2;
 		} elseif ($str == "J3") {
-			return self::J3;
+			$league_id = self::J3;
 		}
-		return 0;
+		return array($league_id, $stage);
 	}
 
 	private function makeSection($input)
@@ -92,6 +111,24 @@ class ImportShell extends AppShell
 		return $namemap[$input];
 	}
 
+	private function makeResult($input)
+	{
+		$home_team_goals = 0;
+		$away_team_goals = 0;
+		$result = 0;
+		if (preg_match('/^([0-9]+)-([0-9]+)/', trim($input), $matches)) {
+			$home_team_goals = $matches[1];
+			$away_team_goals = $matches[2];
+			if ($home_team_goals > $away_team_goals) {
+				$result = 1;
+			} elseif ($home_team_goals < $away_team_goals) {
+				$result = 2;
+			} elseif ($home_team_goals == $home_team_goals) {
+				$result = 3;
+			}
+		}
+		return array($home_team_goals, $away_team_goals, $result);
+	}
 	private function getUrlForTeams($league)
 	{
 		switch ($league) {
