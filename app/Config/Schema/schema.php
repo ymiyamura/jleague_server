@@ -58,6 +58,7 @@ class AppSchema extends CakeSchema {
 		'score_diff' => array('type' => 'integer', 'null' => false, 'default' => '0', 'unsigned' => false),
 		'created' => array('type' => 'datetime', 'null' => true, 'default' => null),
 		'modified' => array('type' => 'datetime', 'null' => true, 'default' => null),
+		'stage' => array('type' => 'integer', 'null' => false, 'default' => '1', 'unsigned' => false),
 		'indexes' => array(
 			'PRIMARY' => array('column' => 'id', 'unique' => 1)
 		),
