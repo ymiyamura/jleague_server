@@ -127,4 +127,19 @@ class Game extends AppModel {
 			'order' => ''
 		)
 	);
+
+	public function maxSection($year, $league_id, $stage)
+	{
+		$game = $this->find('first', array(
+			'conditions' => array(
+				'year' => $year,
+				'Game.league_id' => $league_id,
+				'Game.stage' => $stage
+				),
+			'fields' => array(
+				'max(section) as max_section'
+				)
+			));
+		return $game[0]['max_section'];
+	}
 }
