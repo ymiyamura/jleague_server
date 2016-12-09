@@ -1,5 +1,10 @@
 <div class="rankings index">
 	<h2><?php echo __('Rankings'); ?></h2>
+	<div>
+		<?php echo $this->Html->link('J1', array('controller' => 'rankings', 'action' => 'index', 'league' => 1, 'year' => 2016, 'section' => 17)); ?>
+		<?php echo $this->Html->link('J2', array('controller' => 'rankings', 'action' => 'index', 'league' => 2, 'year' => 2016, 'section' => 42)); ?>
+		<?php echo $this->Html->link('J3', array('controller' => 'rankings', 'action' => 'index', 'league' => 3, 'year' => 2016, 'section' => 30)); ?>
+	</div>
 	<table cellpadding="0" cellspacing="0">
 	<thead>
 	<tr>
@@ -54,19 +59,6 @@
 <?php endforeach; ?>
 	</tbody>
 	</table>
-	<p>
-	<?php
-	echo $this->Paginator->counter(array(
-		'format' => __('Page {:page} of {:pages}, showing {:current} records out of {:count} total, starting on record {:start}, ending on {:end}')
-	));
-	?>	</p>
-	<div class="paging">
-	<?php
-		echo $this->Paginator->prev('< ' . __('previous'), array(), null, array('class' => 'prev disabled'));
-		echo $this->Paginator->numbers(array('separator' => ''));
-		echo $this->Paginator->next(__('next') . ' >', array(), null, array('class' => 'next disabled'));
-	?>
-	</div>
 </div>
 <div class="actions">
 	<h3><?php echo __('Actions'); ?></h3>

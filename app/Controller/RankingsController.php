@@ -14,6 +14,17 @@ class RankingsController extends AppController {
  * @var array
  */
 	public $components = array('Paginator');
+	// public $paginate = array(
+	// 	'conditions' => array(
+	// 		'Ranking.league_id' => 1,
+	// 		'Ranking.year' => 2016,
+	// 		'Ranking.section' => 17,
+	// 		'Ranking.stage' => 1
+	// 		),
+	// 	'order' => array(
+	// 		'rank'
+	// 		)
+	// );
 
 /**
  * index method
@@ -21,6 +32,39 @@ class RankingsController extends AppController {
  * @return void
  */
 	public function index() {
+		debug($this->request);
+		$league_id = 1;
+		$year = 2016;
+		$section = 17;
+		$stage = 1;
+
+		// TODO:model::validate()を使う
+		if ($this->params['named']['league'] && is_numeric($this->params['named']['league'])) {
+			$league_id = htmlspecialchars($this->params['named']['league']);
+		}
+		if ($this->params['named']['year'] && is_numeric($this->params['named']['year'])) {
+			$year = htmlspecialchars($this->params['named']['year']);
+		}
+		if ($this->params['named']['section'] && is_numeric($this->params['named']['section'])) {
+			$section = htmlspecialchars($this->params['named']['section']);
+		}
+		if ($this->params['named']['stage'] && is_numeric($this->params['named']['stage'])) {
+			$stage = htmlspecialchars($this->params['named']['stage']);
+		}
+
+		$options = array(
+			'conditions' => array(
+				'Ranking.league_id' => $league_id,
+				'Ranking.year' => $year,
+				'Ranking.section' => $section,
+				'Ranking.stage' => $stage
+				),
+			'order' => array(
+				'rank'
+				),
+			'limit' => 100
+		);
+		$this->Paginator->settings = $options;
 		$this->Ranking->recursive = 0;
 		$this->set('rankings', $this->Paginator->paginate());
 	}
