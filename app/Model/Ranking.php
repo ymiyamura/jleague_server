@@ -159,4 +159,27 @@ class Ranking extends AppModel {
 			'order' => ''
 		)
 	);
+
+	public function getSections($league_id)
+	{
+		switch ($league_id) {
+			case 1:
+				$max = 34;
+				break;
+			case 2:
+				$max = 42;
+				break;
+			case 3:
+				$max = 30;
+				break;
+			default:
+				$max = 34;
+				break;
+		}
+		$arr = array();
+		for ($i=$max; $i >= 1; $i--) { 
+			$arr[$i] = $i;
+		}
+		return $arr;
+	}
 }

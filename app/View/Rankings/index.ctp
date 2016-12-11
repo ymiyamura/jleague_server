@@ -4,43 +4,71 @@
 		<?php echo $this->Html->link('J1', array('controller' => 'rankings', 'action' => 'index', 'league' => 1, 'year' => 2016, 'section' => 17)); ?>
 		<?php echo $this->Html->link('J2', array('controller' => 'rankings', 'action' => 'index', 'league' => 2, 'year' => 2016, 'section' => 42)); ?>
 		<?php echo $this->Html->link('J3', array('controller' => 'rankings', 'action' => 'index', 'league' => 3, 'year' => 2016, 'section' => 30)); ?>
+		<?php 
+			echo $this->Form->create(null, array(
+				'type' => 'get',
+				'url' => array(
+					'controller' => 'rankings',
+					'action' => 'index',
+					'league' => $this->params['named']['league'],
+					'section' => $this->params['named']['section'],
+				),
+			));
+			echo $this->Form->input('year', array(
+				'type'=>'select',
+				'div'=>false,
+				'label'=>false,
+				'options'=>$years,
+				'default'=> $this->params['named']['year'],
+				'onChange' => 'return this.form.submit();'
+			));
+			echo $this->Form->end();
+		?>
+		<?php 
+			echo $this->Form->create(null, array(
+				'type' => 'get',
+				'url' => array(
+					'controller' => 'rankings',
+					'action' => 'index',
+					'league' => $this->params['named']['league'],
+					'year' => $this->params['named']['year'],
+				),
+			));
+			echo $this->Form->input('section', array(
+				'type'=>'select',
+				'div'=>false,
+				'label'=>false,
+				'options'=>$sections,
+				'default'=> $this->params['named']['section'],
+				'onChange' => 'return this.form.submit();'
+			));
+			echo $this->Form->end();
+		?>
 	</div>
 	<table cellpadding="0" cellspacing="0">
 	<thead>
 	<tr>
-			<th><?php echo $this->Paginator->sort('id'); ?></th>
-			<th><?php echo $this->Paginator->sort('year'); ?></th>
-			<th><?php echo $this->Paginator->sort('section'); ?></th>
-			<th><?php echo $this->Paginator->sort('rank'); ?></th>
-			<th><?php echo $this->Paginator->sort('point'); ?></th>
-			<th><?php echo $this->Paginator->sort('team_id'); ?></th>
-			<th><?php echo $this->Paginator->sort('league_id'); ?></th>
-			<th><?php echo $this->Paginator->sort('games_all'); ?></th>
-			<th><?php echo $this->Paginator->sort('games_won'); ?></th>
-			<th><?php echo $this->Paginator->sort('games_lost'); ?></th>
-			<th><?php echo $this->Paginator->sort('games_drawn'); ?></th>
-			<th><?php echo $this->Paginator->sort('score_got'); ?></th>
-			<th><?php echo $this->Paginator->sort('score_lost'); ?></th>
-			<th><?php echo $this->Paginator->sort('score_diff'); ?></th>
-			<th><?php echo $this->Paginator->sort('created'); ?></th>
-			<th><?php echo $this->Paginator->sort('modified'); ?></th>
+			<th><?php echo $this->Paginator->sort('rank', '順位'); ?></th>
+			<th><?php echo $this->Paginator->sort('team_id', 'チーム'); ?></th>
+			<th><?php echo $this->Paginator->sort('point', '勝点'); ?></th>
+			<th><?php echo $this->Paginator->sort('games_all', '試合'); ?></th>
+			<th><?php echo $this->Paginator->sort('games_won', '勝'); ?></th>
+			<th><?php echo $this->Paginator->sort('games_lost', '負'); ?></th>
+			<th><?php echo $this->Paginator->sort('games_drawn', '分'); ?></th>
+			<th><?php echo $this->Paginator->sort('score_got', '得点'); ?></th>
+			<th><?php echo $this->Paginator->sort('score_lost', '失点'); ?></th>
+			<th><?php echo $this->Paginator->sort('score_diff', '得失'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
 	<tbody>
 	<?php foreach ($rankings as $ranking): ?>
 	<tr>
-		<td><?php echo h($ranking['Ranking']['id']); ?>&nbsp;</td>
-		<td><?php echo h($ranking['Ranking']['year']); ?>&nbsp;</td>
-		<td><?php echo h($ranking['Ranking']['section']); ?>&nbsp;</td>
 		<td><?php echo h($ranking['Ranking']['rank']); ?>&nbsp;</td>
-		<td><?php echo h($ranking['Ranking']['point']); ?>&nbsp;</td>
 		<td>
 			<?php echo $this->Html->link($ranking['Team']['name'], array('controller' => 'teams', 'action' => 'view', $ranking['Team']['id'])); ?>
 		</td>
-		<td>
-			<?php echo $this->Html->link($ranking['League']['name'], array('controller' => 'leagues', 'action' => 'view', $ranking['League']['id'])); ?>
-		</td>
+		<td><?php echo h($ranking['Ranking']['point']); ?>&nbsp;</td>
 		<td><?php echo h($ranking['Ranking']['games_all']); ?>&nbsp;</td>
 		<td><?php echo h($ranking['Ranking']['games_won']); ?>&nbsp;</td>
 		<td><?php echo h($ranking['Ranking']['games_lost']); ?>&nbsp;</td>
@@ -48,8 +76,6 @@
 		<td><?php echo h($ranking['Ranking']['score_got']); ?>&nbsp;</td>
 		<td><?php echo h($ranking['Ranking']['score_lost']); ?>&nbsp;</td>
 		<td><?php echo h($ranking['Ranking']['score_diff']); ?>&nbsp;</td>
-		<td><?php echo h($ranking['Ranking']['created']); ?>&nbsp;</td>
-		<td><?php echo h($ranking['Ranking']['modified']); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $ranking['Ranking']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $ranking['Ranking']['id'])); ?>
@@ -70,3 +96,6 @@
 		<li><?php echo $this->Html->link(__('New League'), array('controller' => 'leagues', 'action' => 'add')); ?> </li>
 	</ul>
 </div>
+<script>
+		
+</script>

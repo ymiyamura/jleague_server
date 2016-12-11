@@ -26,30 +26,57 @@ class RankingsController extends AppController {
 	// 		)
 	// );
 
+	public function beforeFilter()
+	{
+		parent::beforeFilter();
+		$years = array("2016" => 2016, "2017" => 2017);
+		$this->set('years', $years);
+	}
+
 /**
  * index method
  *
  * @return void
  */
 	public function index() {
-		debug($this->request);
+		// debug($this->request);
 		$league_id = 1;
 		$year = 2016;
 		$section = 17;
 		$stage = 1;
+		$redirect = false;
 
 		// TODO:model::validate()を使う
 		if ($this->params['named']['league'] && is_numeric($this->params['named']['league'])) {
 			$league_id = htmlspecialchars($this->params['named']['league']);
 		}
+		if (isset($this->params['named']['stage']) && is_numeric($this->params['named']['stage'])) {
+			$stage = htmlspecialchars($this->params['named']['stage']);
+		}
+		if (isset($this->params['named']['section']) && is_numeric($this->params['named']['section'])) {
+			$section = htmlspecialchars($this->params['named']['section']);
+		} elseif($this->request->query['section']) {
+			$section = htmlspecialchars($this->request->query['section']);
+			$redirect = true;
+		}
 		if ($this->params['named']['year'] && is_numeric($this->params['named']['year'])) {
 			$year = htmlspecialchars($this->params['named']['year']);
+		} elseif($this->request->query['year']['year']) {
+			$year = htmlspecialchars($this->request->query['year']['year']);
+			$redirect = true;
 		}
-		if ($this->params['named']['section'] && is_numeric($this->params['named']['section'])) {
-			$section = htmlspecialchars($this->params['named']['section']);
-		}
-		if ($this->params['named']['stage'] && is_numeric($this->params['named']['stage'])) {
-			$stage = htmlspecialchars($this->params['named']['stage']);
+
+		if ($redirect) {
+			$this->redirect(
+		        array(
+		        	'controller' => 'rankings',
+		        	'action' => 'index',
+		        	'league' => $league_id,
+		        	'section' => $section,
+		        	'stage' => $stage,
+		        	'year' => $year
+		        	)
+		    );
 		}
 
 		$options = array(
@@ -67,6 +94,9 @@ class RankingsController extends AppController {
 		$this->Paginator->settings = $options;
 		$this->Ranking->recursive = 0;
 		$this->set('rankings', $this->Paginator->paginate());
+
+		$sections = $this->Ranking->getSections($league_id);
+		$this->set('sections', $sections);
 	}
 
 /**
