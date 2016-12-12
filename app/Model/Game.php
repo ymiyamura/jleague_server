@@ -128,6 +128,10 @@ class Game extends AppModel {
 		)
 	);
 
+	public $virtualFields = array(
+	    'str_section' => 'CONCAT(League.name, " ", CASE Game.league_id WHEN 1 THEN "1st" WHEN 2 THEN "2nd" END, " ", Game.section, "節")'
+	);
+
 	public function maxSection($year, $league_id, $stage)
 	{
 		$game = $this->find('first', array(

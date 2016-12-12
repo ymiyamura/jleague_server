@@ -3,44 +3,27 @@
 	<table cellpadding="0" cellspacing="0">
 	<thead>
 	<tr>
-			<th><?php echo $this->Paginator->sort('id'); ?></th>
-			<th><?php echo $this->Paginator->sort('year'); ?></th>
-			<th><?php echo $this->Paginator->sort('section'); ?></th>
-			<th><?php echo $this->Paginator->sort('date'); ?></th>
-			<th><?php echo $this->Paginator->sort('stadium'); ?></th>
-			<th><?php echo $this->Paginator->sort('start'); ?></th>
-			<th><?php echo $this->Paginator->sort('home_team_id'); ?></th>
-			<th><?php echo $this->Paginator->sort('away_team_id'); ?></th>
-			<th><?php echo $this->Paginator->sort('home_team_goals'); ?></th>
-			<th><?php echo $this->Paginator->sort('away_team_goals'); ?></th>
-			<th><?php echo $this->Paginator->sort('result'); ?></th>
-			<th><?php echo $this->Paginator->sort('league_id'); ?></th>
-			<th><?php echo $this->Paginator->sort('created'); ?></th>
-			<th><?php echo $this->Paginator->sort('modified'); ?></th>
-			<th><?php echo $this->Paginator->sort('stage'); ?></th>
+			<th><?php echo $this->Paginator->sort('section', '節'); ?></th>
+			<th><?php echo $this->Paginator->sort('date', '日程'); ?></th>
+			<th><?php echo $this->Paginator->sort('start', '開始時間'); ?></th>
+			<th><?php echo $this->Paginator->sort('home_team_id', 'ホーム'); ?></th>
+			<th><?php echo '結果'; ?></th>
+			<th><?php echo $this->Paginator->sort('away_team_id', 'アウェイ'); ?></th>
+			<th><?php echo $this->Paginator->sort('stadium', 'スタジアム'); ?></th>
 			<th class="actions"><?php echo __('Actions'); ?></th>
 	</tr>
 	</thead>
 	<tbody>
 	<?php foreach ($games as $game): ?>
 	<tr>
-		<td><?php echo h($game['Game']['id']); ?>&nbsp;</td>
-		<td><?php echo h($game['Game']['year']); ?>&nbsp;</td>
-		<td><?php echo h($game['Game']['section']); ?>&nbsp;</td>
+		<td><?php echo h($game['Game']['str_section']);
+			?>&nbsp;</td>
 		<td><?php echo h($game['Game']['date']); ?>&nbsp;</td>
+		<td><?php echo $this->Time->format('H:i', $game['Game']['start']); ?>&nbsp;</td>
+		<td><?php echo $this->Html->link(h($game['HomeTeam']['short_name']), array('controller' => 'Teams', 'action' => 'view', h($game['HomeTeam']['id']))); ?>&nbsp;</td>
+		<td><?php echo $this->Html->link(h($game['Game']['home_team_goals']) . '-' . h($game['Game']['away_team_goals']), array('action' => 'view', $game['Game']['id'])); ?>&nbsp;</td>
+		<td><?php echo $this->Html->link(h($game['AwayTeam']['short_name']), array('controller' => 'Teams', 'action' => 'view', h($game['AwayTeam']['id']))); ?>&nbsp;</td>
 		<td><?php echo h($game['Game']['stadium']); ?>&nbsp;</td>
-		<td><?php echo h($game['Game']['start']); ?>&nbsp;</td>
-		<td><?php echo h($game['Game']['home_team_id']); ?>&nbsp;</td>
-		<td><?php echo h($game['Game']['away_team_id']); ?>&nbsp;</td>
-		<td><?php echo h($game['Game']['home_team_goals']); ?>&nbsp;</td>
-		<td><?php echo h($game['Game']['away_team_goals']); ?>&nbsp;</td>
-		<td><?php echo h($game['Game']['result']); ?>&nbsp;</td>
-		<td>
-			<?php echo $this->Html->link($game['League']['name'], array('controller' => 'leagues', 'action' => 'view', $game['League']['id'])); ?>
-		</td>
-		<td><?php echo h($game['Game']['created']); ?>&nbsp;</td>
-		<td><?php echo h($game['Game']['modified']); ?>&nbsp;</td>
-		<td><?php echo h($game['Game']['stage']); ?>&nbsp;</td>
 		<td class="actions">
 			<?php echo $this->Html->link(__('View'), array('action' => 'view', $game['Game']['id'])); ?>
 			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $game['Game']['id'])); ?>
