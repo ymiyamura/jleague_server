@@ -135,10 +135,14 @@ class Team extends AppModel {
 
 	public $namemap = array();
 
-	public function namemap()
+	public function namemap($year)
 	{
 		if (empty($this->namemap)) {
-			$teams = $this->find('all');
+			$teams = $this->find('all', array(
+				'conditions' => array(
+					'year' => $year,
+				),
+			));
 			$this->namemap = Hash::combine($teams, '{n}.Team.short_name', '{n}.Team.id');
 		}
 		return $this->namemap;
