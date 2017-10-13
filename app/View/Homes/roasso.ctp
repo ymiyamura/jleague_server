@@ -75,3 +75,10 @@
 		<?php endforeach; ?>
 	</table>
 </div>
+<div class="sns">
+	<a class="twitter-timeline"  href="https://twitter.com/roasso_fan1/lists/official" data-widget-id="728575309713264645">https://twitter.com/roasso_fan1/lists/officialのツイート</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+<a class="twitter-timeline"  href="https://twitter.com/hashtag/roasso" data-widget-id="423819573071060992">#roasso のツイート</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+</div>
