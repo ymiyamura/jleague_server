@@ -17,6 +17,7 @@ class HomesController extends AppController {
 	public $uses = array(
 		'Team',
 		'Game',
+		'Ranking',
 	);
 
 	public function index()
@@ -25,11 +26,18 @@ class HomesController extends AppController {
 
 	public function roasso()
 	{
-		$team_id = $this->Team->field('id', array(
-			'name' => 'ロアッソ熊本',
-			'year' => date('Y'),
+		$team = $this->Team->find('first', array(
+			'conditions' => array(
+				'name' => 'ロアッソ熊本',
+				'year' => date('Y'),
+			),
+			'recursive' => -1,
 		));
+		$team_id = $team['Team']['id'];
+		$league_id = $team['Team']['league_id'];
 		$this->log($team_id);
+
+		// チームの成績
 		$games = $this->Game->find('all', array(
 			'conditions' => array(
 				'Game.year' => date('Y'),
@@ -58,6 +66,41 @@ class HomesController extends AppController {
 			}
 		}
 
+		// 最新の順位表
+		// 直近の節
+		$recent_game = $this->Game->find('first', array(
+			'fields' => array(
+				'section',
+				'stage',
+			),
+			'conditions' => array(
+				'Game.year' => date('Y'),
+				'result >' => 0,
+				'OR' => array(
+					'home_team_id' => $team_id,
+					'away_team_id' => $team_id,
+				),
+			),
+			'order' => 'section desc',
+		));
+
+		$section = 1;
+		$stage = 1;
+		if (!empty($recent_game)) {
+			$section = $recent_game['Game']['section'];
+			$stage = $recent_game['Game']['stage'];
+		}
+
+		$ranking = $this->Ranking->find('all', array(
+			'conditions' => array(
+				'Ranking.year' => date('Y'),
+				'Ranking.league_id' => $league_id,
+				'Ranking.section' => $section,
+				'Ranking.stage' => $stage,
+			),
+			'order' => 'rank',
+		));
+
 		$results = array(
 			0 => '-',
 			1 => '◯',
@@ -71,6 +114,6 @@ class HomesController extends AppController {
 			2 => '#ADD8E6',
 			3 => '#FAFAD2',
 		);
-		$this->set(compact('games', 'results', 'result_colors'));
+		$this->set(compact('games', 'results', 'result_colors', 'ranking', 'section', 'team_id'));
 	}
 }

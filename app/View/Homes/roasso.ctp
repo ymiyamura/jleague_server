@@ -31,3 +31,47 @@
 		<?php endforeach; ?>
 	</table>
 </div>
+<div class="ranking">
+	<p>第<?php echo $section; ?>節</p>
+	<table>
+		<tr>
+			<td>順位</td>
+			<td>チーム</td>
+			<td>勝点</td>
+			<td>試合数</td>
+			<td>勝</td>
+			<td>分</td>
+			<td>負</td>
+			<td>得点</td>
+			<td>失点</td>
+			<td>得失差</td>
+		</tr>
+		<?php foreach ($ranking as $key => $value): ?>
+			<?php
+			if ($value['Ranking']['team_id'] == $team_id) {
+				$color = '#FF4500';
+			} elseif (in_array($value['Ranking']['rank'], array(1, 2))) {
+				$color = '#FFA500';
+			} elseif (in_array($value['Ranking']['rank'], array(3, 4, 5, 6))) {
+				$color = '#FFD700';
+			} elseif (in_array($value['Ranking']['rank'], array(21, 22))) {
+				$color = '#6495ED';
+			}else {
+				$color = '#F8F8FF';
+			}
+			?>
+			<tr style="background-color: <?php echo $color; ?>">
+				<td><?php echo $value['Ranking']['rank']; ?></td>
+				<td><?php echo $value['Team']['name']; ?></td>
+				<td><?php echo $value['Ranking']['point']; ?></td>
+				<td><?php echo $value['Ranking']['games_all']; ?></td>
+				<td><?php echo $value['Ranking']['games_won']; ?></td>
+				<td><?php echo $value['Ranking']['games_drawn']; ?></td>
+				<td><?php echo $value['Ranking']['games_lost']; ?></td>
+				<td><?php echo $value['Ranking']['score_got']; ?></td>
+				<td><?php echo $value['Ranking']['score_lost']; ?></td>
+				<td><?php echo $value['Ranking']['score_diff']; ?></td>
+			</tr>
+		<?php endforeach; ?>
+	</table>
+</div>
