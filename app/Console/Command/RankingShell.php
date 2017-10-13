@@ -1,6 +1,6 @@
 <?php
 /**
-* 
+*
 */
 class RankingShell extends AppShell
 {
@@ -8,7 +8,7 @@ class RankingShell extends AppShell
 	const J1 = 1;
 	const J2 = 2;
 	const J3 = 3;
-	public $uses = array('Ranking', 'Game');
+	public $uses = array('Ranking', 'Game', 'Team');
 
 	public function calcall()
 	{
@@ -16,7 +16,8 @@ class RankingShell extends AppShell
 		if ($this->args && $this->args[0] && is_numeric($this->args[0])) {
 			$year = intval($this->args[0]);
 		}
-		$leagues = array(self::J1, self::J2, self::J3);
+		$leagues = array(self::J3);
+		// $leagues = array(self::J1, self::J2, self::J3);
 		foreach ($leagues as $league_id) {
 			if ($league_id == self::J1) {
 				// J1 1st, 2nd
@@ -47,11 +48,126 @@ class RankingShell extends AppShell
 	{
 		// stageの集計を行う
 		$maxSection = $this->Game->maxSection($year, $league_id, $stage);
-		for ($section=1; $section <= $maxSection; $section++) { 
-			$sql = $this->getSql($league_id, $year, $stage, $section);
-			$ret = $this->Ranking->query($sql);
-			$this->saveRankings($ret);
+		$team_ids = $this->Team->find('list', array(
+			'fields' => array(
+				'id'
+			),
+			'conditions' => array(
+				'year' => $year,
+				'league_id' => $league_id
+			),
+		));
+		for ($section=1; $section <= $maxSection; $section++) {
+			// 各チーム、対象の節までの合計を求める
+			$rankings = array();
+			foreach ($team_ids as $team_id) {
+				# code...
+				$ranking = $this->__calcScoresByTeam($league_id, $year, $stage, $section, $team_id);
+				if (empty($ranking)) {
+					$ranking['Ranking']['league_id'] = $league_id;
+					$ranking['Ranking']['year'] = $year;
+					$ranking['Ranking']['stage'] = $stage;
+					$ranking['Ranking']['section'] = $section;
+					$ranking['Ranking']['team_id'] = $team_id;
+					$ranking[0]['score_diff'] = 0;
+					$ranking[0]['point'] = 0;
+				} else {
+					$ranking = $ranking[0];
+					$ranking[0]['section'] = $section;
+				}
+				$rankings[] = $ranking;
+			}
+			$this->log($rankings);
+			// $sql = $this->getSql($league_id, $year, $stage, $section);
+			// $ret = $this->Ranking->query($sql);
+			$this->saveRankings($rankings);
 		}
+	}
+
+	private function __calcScoresByTeam($league_id, $year, $stage, $section, $team_id)
+	{
+		$sql = <<<EOD
+select
+	year,
+	league_id,
+	team_id,
+	max(section) as section,
+	stage,
+	count(*) as games_all,
+	sum(wins) as games_won,
+	sum(loses) as games_lost,
+	sum(draws) as games_drawn,
+	sum(kachiten) as point,
+	sum(goals_get) as score_got,
+	sum(goals_lost) as score_lost,
+	(sum(goals_get) - sum(goals_lost)) as score_diff,
+	now(),
+	now()
+from
+(select
+	year,
+	league_id,
+	section,
+	stage,
+	home_team_id as team_id,
+	home_team_goals as goals_get,
+	away_team_goals as goals_lost,
+	case result
+		when 1 then 3
+		when 2 then 0
+		when 3 then 1
+	end kachiten,
+	case result when 1 then 1 else 0 end wins,
+	case result when 2 then 1 else 0 end loses,
+	case result when 3 then 1 else 0 end draws
+from
+	games
+union all
+select
+	year,
+	league_id,
+	section,
+	stage,
+	away_team_id as team_id,
+	away_team_goals as goals_get,
+	home_team_goals as goals_lost,
+	case result
+		when 1 then 0
+		when 2 then 3
+		when 3 then 1
+	end kachiten,
+	case result when 1 then 1 else 0 end loses,
+	case result when 2 then 1 else 0 end wins,
+	case result when 3 then 1 else 0 end draws
+from
+	games
+) as table1
+where
+	league_id = $league_id
+	and year = $year
+	and stage = $stage
+	and team_id = $team_id
+	and section <= $section
+group by
+	year
+;
+EOD;
+		return $this->Ranking->query($sql, false);
+	}
+
+	private function saveRanking($row)
+	{
+		// foreach ($rankings as $k => $row) {
+			$params = array();
+			foreach ($row as $arr) {
+				foreach ($arr as $key => $value) {
+					$params[$key] = $value;
+				}
+			}
+			// $params['rank'] = $k + 1;
+			$this->Ranking->create();
+			$this->Ranking->save($params);
+		// }
 	}
 
 	// public function calc()
@@ -76,6 +192,8 @@ class RankingShell extends AppShell
 
 	private function saveRankings($rankings)
 	{
+		$rankings = Hash::sort($rankings, '{n}.0.score_diff', 'asc');
+		$rankings = Hash::sort($rankings, '{n}.0.point', 'desc');
 		foreach ($rankings as $k => $row) {
 			$params = array();
 			foreach ($row as $arr) {
