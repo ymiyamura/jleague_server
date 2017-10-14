@@ -136,7 +136,7 @@ class Game extends AppModel {
 	{
 		$game = $this->find('first', array(
 			'conditions' => array(
-				'year' => $year,
+				'Game.year' => $year,
 				'Game.league_id' => $league_id,
 				'Game.stage' => $stage
 				),
