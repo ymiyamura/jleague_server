@@ -82,7 +82,7 @@ class ImportShell extends AppShell
 			$params['start'] = trim(pq($row)->find('td:eq(4)')->text());
 			// H得点、A得点、結果
 			list($params['home_team_goals'], $params['away_team_goals'], $params['result']) = $this->makeResult(pq($row)->find('td:eq(6)>a')->text());
-			$this->out(var_export($params, true));
+			// $this->out(var_export($params, true));
 			// $this->Game->create();
 			$this->Game->save($params);
 			$i++;

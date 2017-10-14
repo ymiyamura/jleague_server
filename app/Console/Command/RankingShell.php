@@ -16,10 +16,9 @@ class RankingShell extends AppShell
 		if ($this->args && $this->args[0] && is_numeric($this->args[0])) {
 			$year = intval($this->args[0]);
 		}
-		$leagues = array(self::J3);
-		// $leagues = array(self::J1, self::J2, self::J3);
+		$leagues = array(self::J1, self::J2, self::J3);
 		foreach ($leagues as $league_id) {
-			if ($league_id == self::J1) {
+			if ($year == 2106 && $league_id == self::J1) {
 				// J1 1st, 2nd
 				$stages = array(1, 2);
 				foreach ($stages as $stage) {
@@ -36,7 +35,7 @@ class RankingShell extends AppShell
 					$this->saveRankings($ret);
 				}
 			} else {
-				$this->Ranking->deleteAll(array('Ranking.league_id' => $league_id));
+				// $this->Ranking->deleteAll(array('Ranking.league_id' => $league_id));
 				$this->registerRanking($year, $league_id, 1);
 			}
 
@@ -61,7 +60,6 @@ class RankingShell extends AppShell
 			// 各チーム、対象の節までの合計を求める
 			$rankings = array();
 			foreach ($team_ids as $team_id) {
-				# code...
 				$ranking = $this->__calcScoresByTeam($league_id, $year, $stage, $section, $team_id);
 				if (empty($ranking)) {
 					$ranking['Ranking']['league_id'] = $league_id;
@@ -77,13 +75,14 @@ class RankingShell extends AppShell
 				}
 				$rankings[] = $ranking;
 			}
-			$this->log($rankings);
-			// $sql = $this->getSql($league_id, $year, $stage, $section);
-			// $ret = $this->Ranking->query($sql);
 			$this->saveRankings($rankings);
 		}
 	}
 
+	/**
+	 * J3（奇数チーム）対応
+	 * パフォーマンスが悪い
+	 */
 	private function __calcScoresByTeam($league_id, $year, $stage, $section, $team_id)
 	{
 		$sql = <<<EOD
@@ -122,6 +121,8 @@ from
 	case result when 3 then 1 else 0 end draws
 from
 	games
+where
+	result > 0
 union all
 select
 	year,
@@ -141,6 +142,8 @@ select
 	case result when 3 then 1 else 0 end draws
 from
 	games
+where
+	result > 0
 ) as table1
 where
 	league_id = $league_id
@@ -155,41 +158,6 @@ EOD;
 		return $this->Ranking->query($sql, false);
 	}
 
-	private function saveRanking($row)
-	{
-		// foreach ($rankings as $k => $row) {
-			$params = array();
-			foreach ($row as $arr) {
-				foreach ($arr as $key => $value) {
-					$params[$key] = $value;
-				}
-			}
-			// $params['rank'] = $k + 1;
-			$this->Ranking->create();
-			$this->Ranking->save($params);
-		// }
-	}
-
-	// public function calc()
-	// {
-	// 	if ($this->args[0] && is_numeric($this->args[0])) {
-	// 		$league_id = intval($this->args[0]);
-	// 	}
-	// 	if ($this->args[1] && is_numeric($this->args[1])) {
-	// 		$year = intval($this->args[1]);
-	// 	}
-	// 	if ($this->args[2] && is_numeric($this->args[2])) {
-	// 		$section = intval($this->args[2]);
-	// 	}
-	// 	$leagues = array(self::J1, self::J2, self::J3);
-	// 	foreach ($leagues as $league_id) {
-	// 		$sql = $this->getSql($league_id, $year, $section);
-	// 		$ret = $this->Ranking->query($sql);
-	// 		$this->saveRankings($ret);
-	// 		$this->out("league_id: " . $league_id . " is done.");
-	// 	}
-	// }
-
 	private function saveRankings($rankings)
 	{
 		$rankings = Hash::sort($rankings, '{n}.0.score_diff', 'asc');
@@ -202,13 +170,24 @@ EOD;
 				}
 			}
 			$params['rank'] = $k + 1;
-			$this->Ranking->create();
+			$id = $this->Ranking->field('id', array(
+				'year' => $params['year'],
+				'stage' => $params['stage'],
+				'section' => $params['section'],
+				'team_id' => $params['team_id'],
+			));
+			if (empty($id)) {
+				$this->Ranking->create();
+			} else {
+				$this->Ranking->id = $id;
+			}
 			$this->Ranking->save($params);
 		}
 	}
 
 	/**
 	 * todo: use cake model method
+	 * 標準のもの
 	 */
 	private function getSql($league_id, $year, $stage, $section = null)
 	{
@@ -288,6 +267,9 @@ EOD;
 		return $sql;
 	}
 
+	/**
+	 * 2016年J1用
+	 */
 	private function getSqlFor2stage($league_id, $year, $section, $max_section)
 	{
 		$sql = <<<EOD
