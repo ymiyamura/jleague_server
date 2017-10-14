@@ -10,6 +10,8 @@
 /tags
 *.mo
 /app/Config/core.php
+/app/Vendor
+!/app/Vendor/empty
 
 # IDE and editor specific files #
 #################################
