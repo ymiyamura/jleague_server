@@ -1,5 +1,5 @@
 <?php
-App::import('Vendor', 'phpQuery-onefile');
+App::uses('phpQuery', 'Lib');
 App::uses('TeamShell', 'Console/Command');
 App::uses('CakeTime', 'Utility');
 /**
