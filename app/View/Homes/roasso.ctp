@@ -1,4 +1,37 @@
-<?php //pr($games); ?>
+<div class="headline">
+	<div class="next-game">
+		<?php if (!empty($next_game)): ?>
+			<h2>次の試合</h2>
+			<p><?php echo $next_game['Game']['section']; ?>節 <?php echo $next_game['HomeTeam']['name']; ?> vs <?php echo $next_game['AwayTeam']['name']; ?></p>
+			<p><?php echo $next_game['Game']['date']; ?> <?php echo $next_game['Game']['start']; ?> <?php echo $next_game['Game']['stadium']; ?></p>
+		<?php endif; ?>
+	</div>
+	<div class="now ranking">
+		<p><?php echo $my_ranking['rank']; ?>位 勝点<?php echo $my_ranking['point']; ?></p>
+		<p>
+		<?php if ($to_up == -1): ?>
+			自動昇格圏内
+		<?php else: ?>
+			自動昇格まで勝点差 <?php echo $to_up; ?>
+		<?php endif; ?></p>
+		<p>
+		<?php if ($to_po == -1): ?>
+			<?php if ($to_up != -1): ?>
+				プレーオフ進出圏内
+			<?php endif; ?>
+		<?php else: ?>
+			プレーオフ進出まで勝点差 <?php echo $to_po; ?>
+		<?php endif; ?>
+		</p>
+		<p>
+		<?php if ($to_down == -1): ?>
+			自動降格圏内
+		<?php else: ?>
+			自動降格まで勝点差 <?php echo $to_down; ?>
+		<?php endif; ?>
+		</p>
+	</div>
+</div>
 <div class="game">
 	<table>
 		<tr>

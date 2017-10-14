@@ -35,7 +35,6 @@ class HomesController extends AppController {
 		));
 		$team_id = $team['Team']['id'];
 		$league_id = $team['Team']['league_id'];
-		$this->log($team_id);
 
 		// チームの成績
 		$games = $this->Game->find('all', array(
@@ -84,6 +83,19 @@ class HomesController extends AppController {
 			'order' => 'section desc',
 		));
 
+		// 次の試合
+		$next_game = $this->Game->find('first', array(
+			'conditions' => array(
+				'Game.year' => date('Y'),
+				'result' => 0,
+				'OR' => array(
+					'home_team_id' => $team_id,
+					'away_team_id' => $team_id,
+				),
+			),
+			'order' => 'section',
+		));
+
 		$section = 1;
 		$stage = 1;
 		if (!empty($recent_game)) {
@@ -101,6 +113,29 @@ class HomesController extends AppController {
 			'order' => 'rank',
 		));
 
+		$my_ranking = 0;
+		foreach ($ranking as $key => $value) {
+			if ($value['Ranking']['team_id'] == $team_id) {
+				$my_ranking = $value['Ranking'];
+				break;
+			}
+		}
+
+		// 自動昇格まで
+		// POまで
+		// 自動降格まで
+		$to_up = $ranking[1]['Ranking']['point'] - $my_ranking['point'];
+		$to_po = $ranking[5]['Ranking']['point'] - $my_ranking['point'];
+		$to_down = $my_ranking['point'] - $ranking[20]['Ranking']['point'];
+		if (in_array($my_ranking['rank'], array(1, 2))) {
+			$to_up = -1;
+			$to_po = -1;
+		} elseif (in_array($my_ranking['rank'], array(3, 4, 5, 6))) {
+			$to_po = -1;
+		} elseif (in_array($my_ranking['rank'], array(21, 22))) {
+			$to_down = -1;
+		}
+
 		$results = array(
 			0 => '-',
 			1 => '◯',
@@ -114,6 +149,6 @@ class HomesController extends AppController {
 			2 => '#ADD8E6',
 			3 => '#FAFAD2',
 		);
-		$this->set(compact('games', 'results', 'result_colors', 'ranking', 'section', 'team_id'));
+		$this->set(compact('games', 'results', 'result_colors', 'ranking', 'section', 'team_id', 'next_game', 'my_ranking', 'to_up', 'to_po', 'to_down'));
 	}
 }
